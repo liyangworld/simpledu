@@ -1,0 +1,83 @@
+{% extends "layouts/base.html" %}
+
+{% set title='课程' %}
+
+{% block body %}
+
+<div class="row" id="courses"></div>
+
+<div id="colWrap" style="display:none;">
+
+    <div class="thumbnail">
+      <a class="course-url" href="" target="_blank">
+        <img class="course-img" src="" alt="课程">
+        <div class="caption">
+            <h4 class="course__name"></h4>
+            <p class="course__description"></p>
+        </div>
+      </a>
+    </div>
+
+</div>
+
+<div class="pagination-wrap" style="margin-top:15px;">
+    <ul class="pagination text-center"></ul>
+</div>
+
+{% endblock %}
+
+
+{% block scripts %}
+
+<script>
+    $(function(){
+        var params = {
+            pageIndex: 1,
+            pageSize: 9
+        };
+        var paginationFlag = true;//默认未分页
+        function getCourses(){
+            sendToServer.get(_getApiUrl('courseList'), params, function(resData){
+                //console.warn(JSON.stringify(resData));
+                if(resData.Success){
+                    var $row = $("#courses");
+                    $row.html("");
+
+                    var col_str = $("#colWrap").html();
+                    for(let course of resData.data){
+
+                        $col = $('<div class="col-sm-6 col-md-4 course"></div>').html(col_str);
+
+                        $col.find(".course-url").attr("href", '/courses/' + course.id);
+                        $col.find(".course-img").attr("src", course.image_url);
+                        $col.find(".course__name").html(course.name);
+                        $col.find(".course__description").html(course.description);
+
+                        $row.append($col);
+                    }
+                    if(paginationFlag){
+                        paginationFlag = false;
+                        $('.pagination').pagination({
+                            items: resData.total,
+                            itemsOnPage: params.pageSize,
+                            cssStyle: 'light-theme',
+                            hrefTextPrefix: '#',
+                            onPageClick: function (number, e) {
+                                e.preventDefault();
+                                params.pageIndex = number;
+                                getCourses();
+                            }
+                        });
+                    }
+
+
+                }
+            });
+        }
+        getCourses();
+
+
+});
+</script>
+
+{% endblock %}

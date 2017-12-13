@@ -1,0 +1,93 @@
+{% extends "admin/index.html" %}
+
+{% set title='新增课程' %}
+
+{% block styles %}
+<style>
+    .fun-bar{
+        padding: 5px 10px;
+        text-align:left;
+        margin-bottom: 20px;
+        font-size: 18px;
+        font-weight: bold;
+    }
+</style>
+
+{% endblock %}
+
+{% block admin %}
+
+<div class="fun-bar">
+    新增课程
+</div>
+
+<form id="createForm">
+      <div class="form-group">
+        <label>课程名称</label>
+        <input type="text" class="form-control" id="name">
+      </div>
+      <div class="form-group">
+        <label>课程简介</label>
+          <textarea id="description" cols="30" rows="10" style="display:block;width:100%;"></textarea>
+      </div>
+      <div class="form-group">
+        <label>封面图片地址</label>
+        <input type="text" class="form-control" id="imgUrl">
+      </div>
+        <div class="form-group">
+        <label>作者ID</label>
+        <input type="text" class="form-control" id="authorId">
+      </div>
+      <button type="submit" class="btn btn-primary">提交</button>
+</form>
+
+{% endblock %}
+
+
+
+{% block scripts %}
+
+<script>
+    $(function(){
+
+        $("#createForm").submit(function(e){
+            e.preventDefault();
+            var sendData = {
+                name: $('#name').val().trim(),
+                description: $('#description').val().trim(),
+                image_url: $('#imgUrl').val().trim(),
+                author_id: $('#authorId').val().trim()/1,
+            };
+            console.warn(JSON.stringify(sendData));
+            $.ajax({
+                url: _APIs.Base + '/courses/',
+                method: 'post',
+                contentType: "application/json;charset=utf-8",
+                data: JSON.stringify(sendData),
+                success: function (responseData, textStatus, jqXHR) {
+                    if(responseData.Success){
+                        $.message({
+                            message: '新增成功',
+                            type:'success'
+                        });
+                        setTimeout(function(){
+                            window.location = '/admin/courses'
+                        }, 1500);
+
+                    }else{
+                        $.message({
+                            message: responseData.Message,
+                            type:'error'
+                        });
+                    }
+                }
+            });
+
+        });
+
+
+
+});
+</script>
+
+{% endblock %}

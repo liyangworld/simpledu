@@ -1,0 +1,74 @@
+{% extends "layouts/base.html" %}
+
+{% set title='直播' %}
+
+{% block body %}
+
+<div class="row">
+  <div class="col-md-9">
+        <video id="videoElement" width="100%" height="500px" controls="controls"></video>
+
+      <div class="live-url-wrap">
+          <label>直播地址：</label>
+          <input type="text" id="liveUrl" style="width:500px;display:inline-block;" class="form-control">
+          <button id="toggleUrl" class="btn btn-warning">切换</button>
+      </div>
+  </div>
+  <div class="col-md-3">
+      聊天室
+  </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+
+<script src="/static/js/flv.min.js"></script>
+<script>
+
+var pre_url = 'https://qn.live-play.acgvideo.com/live-qn/256791/live_7450650_9776141.flv?wsSecret=2f8d1600b3adbc2b0d5a8dc6b651ff32&wsTime=1512904552';
+$("#liveUrl").val(pre_url);
+
+var videoElement = document.getElementById('videoElement');
+var flvPlayer = null;
+
+
+$("#toggleUrl").click(function(e){
+
+    var url = $("#liveUrl").val().trim();
+    console.warn(url);
+    if(!url){
+        $.message({
+            type: 'error',
+            message: '请输入直播地址'
+        });
+    }else{
+        initPlayer(url);
+    }
+
+});
+
+function initPlayer(url){
+    if (flvjs.isSupported()) {
+
+       // 初始化播放器
+        flvPlayer = flvjs.createPlayer({
+            // 流的类型
+            type: 'flv',
+            // 是否是直播
+            isLive: true,
+            // 直播流地址
+            url: url
+        });
+        flvPlayer.attachMediaElement(videoElement);
+        flvPlayer.load();
+        // 播放直播
+        flvPlayer.play();
+    }
+
+}
+$("#toggleUrl").click();
+
+</script>
+{% endblock %}

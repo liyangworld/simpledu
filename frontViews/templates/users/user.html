@@ -1,0 +1,39 @@
+{% extends "layouts/base.html" %}
+
+{% set title=user.username %}
+
+
+{% block styles %}
+<style>
+    .user-info{
+        padding: 15px;
+        background: #F9F9F9;
+        border: 1px solid #eee;
+        border-radius: 3px;
+    }
+</style>
+{% endblock %}
+
+
+{% block body %}
+
+<div class="row">
+    <div class="col-md-3">
+        <div class="user-info">
+            <p>ID: {{ user.id }}</p>
+            <p>姓名: {{ user.username }}</p>
+        </div>
+
+    </div>
+    <div class="col-md-9">
+        <p>发布的课程:</p>
+        <ol>
+            {% for course in user.publish_courses %}
+                <li>{{ course.name }}</li>
+            {% endfor %}
+        </ol>
+    </div>
+</div>
+
+
+{% endblock %}

@@ -1,0 +1,84 @@
+{% extends "admin/index.html" %}
+
+{% set title='修改直播' %}
+
+{% block styles %}
+<style>
+    .fun-bar{
+        padding: 5px 10px;
+        text-align:left;
+        margin-bottom: 20px;
+        font-size: 18px;
+        font-weight: bold;
+    }
+</style>
+
+{% endblock %}
+
+{% block admin %}
+
+<div class="fun-bar">
+    修改直播
+</div>
+
+<form id="editForm">
+      <div class="form-group">
+        <label>名称</label>
+        <input type="text" class="form-control" id="name" value="{{ live.name }}">
+      </div>
+      <div class="form-group">
+        <label>主播ID</label>
+          <input type="text" class="form-control" id="authorId" value="{{ live.author_id }}">
+      </div>
+
+      <button type="submit" class="btn btn-primary">提交</button>
+</form>
+
+{% endblock %}
+
+
+
+{% block scripts %}
+
+<script>
+    $(function(){
+        var live_id = {{ live.id }};
+        $("#editForm").submit(function(e){
+            e.preventDefault();
+            var sendData = {
+                name: $('#name').val(),
+                author_id: $('#authorId').val()/1
+            };
+            console.warn(JSON.stringify(sendData));
+            $.ajax({
+                url: _APIs.Base + '/lives/' + live_id,
+                method: 'PUT',
+                contentType: "application/json;charset=utf-8",
+                data: JSON.stringify(sendData),
+                success: function (responseData, textStatus, jqXHR) {
+                    if(responseData.Success){
+                        $.message({
+                            message: '修改成功',
+                            type:'success'
+                        });
+                        setTimeout(function(){
+                            window.location = '/admin/lives'
+                        }, 1500);
+
+                    }else{
+                        $.message({
+                            message: responseData.Message,
+                            type:'error'
+                        });
+                    }
+                }
+            });
+
+        });
+
+
+
+});
+</script>
+
+{% endblock %}

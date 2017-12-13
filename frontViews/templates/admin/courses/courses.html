@@ -1,0 +1,150 @@
+{% extends "admin/index.html" %}
+
+{% set title='课程' %}
+
+{% block styles %}
+<style>
+    .fun-bar{
+        border:1px solid #ccc;
+        padding: 5px 10px;
+        text-align:right;
+        margin-bottom: 20px;
+    }
+    .btn-delete{
+        margin-left:15px;
+    }
+</style>
+
+{% endblock %}
+
+{% block admin %}
+
+<div class="fun-bar">
+    <a class="btn btn-success" href="/admin/courses/create">新增课程</a>
+</div>
+
+<table id="courseTable" class="table table-bordered table-hover table-striped">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>名称</th>
+            <th>作者</th>
+            <th>操作</th>
+        </tr>
+    </thead>
+    <tbody></tbody>
+</table>
+
+
+
+<div class="pagination-wrap" style="margin-top:15px;">
+    <ul class="pagination text-center"></ul>
+</div>
+
+{% endblock %}
+
+
+
+{% block scripts %}
+
+<script>
+    $(function(){
+
+        var _courses = null;//当前所有的数据
+
+        var params = {
+            pageIndex: 1,
+            pageSize: 10
+        };
+        var paginationFlag = true;//默认未分页
+        function getCourses(){
+            sendToServer.get(_getApiUrl('courseList'), params, function(resData){
+                //console.warn(JSON.stringify(resData));
+                if(resData.Success){
+                    _courses = resData.data;
+                    bindTable(resData);
+                }else{
+                    $.message({
+                        message: resData.Message,
+                        type:'error'
+                    });
+                }
+            });
+        }
+        getCourses();
+        function bindTable(resData){
+
+            var $tbody = $("#courseTable tbody");
+            $tbody.html("");
+
+            for(var i=0; i<resData.data.length; i++){
+                var course = resData.data[i];
+
+                var $tr = $("<tr>");
+                $tr.data("index", i);
+
+                $td_id = $('<td>').html(course.id);
+                $td_name = $('<td>').html(course.name);
+                $td_author = $('<td>').html(course.authorName);
+
+                var btn_modify = '<button class="btn btn-xs btn-warning btn-modify">编辑</button>';
+                var btn_delete = '<button class="btn btn-xs btn-danger btn-delete">删除</button>';
+                $td_btns = $('<td>').html('<div>'+ btn_modify + btn_delete +'</div>');
+
+                $tr.append($td_id, $td_name, $td_author, $td_btns);
+                $tbody.append($tr);
+
+            }
+            if(paginationFlag){
+                paginationFlag = false;
+                $('.pagination').pagination({
+                    items: resData.total,
+                    itemsOnPage: params.pageSize,
+                    cssStyle: 'light-theme',
+                    hrefTextPrefix: '#',
+                    onPageClick: function (number, e) {
+                        e.preventDefault();
+                        params.pageIndex = number;
+                        getCourses();
+                    }
+                });
+            }
+
+
+            $(".btn-delete").on('click', function(e){
+                var curIndex = $(this).closest('tr').data("index");
+                $.ajax({
+                    url: _APIs.Base + '/courses/' + _courses[curIndex].id,
+                    method: 'DELETE',
+                    success: function (responseData, textStatus, jqXHR) {
+                        if(responseData.Success){
+                            $.message({
+                                message: '删除成功',
+                                type:'success'
+                            });
+                            setTimeout(function(){
+                                window.location.reload();
+                            }, 1500);
+
+                        }else{
+                            $.message({
+                                message: responseData.Message,
+                                type:'error'
+                            });
+                        }
+                    }
+                });
+            });
+            $(".btn-modify").on('click', function(e){
+                var curIndex = $(this).closest('tr').data("index");
+                window.location.href = '/admin/courses/' + _courses[curIndex].id + '/edit';
+            });
+
+        }
+
+
+
+});
+</script>
+
+{% endblock %}

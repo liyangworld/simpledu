@@ -1,0 +1,101 @@
+{% extends "layouts/base.html" %}
+
+{% set title='登陆' %}
+
+{% block styles %}
+<style>
+    .login-form{
+        width:540px;
+        margin: 50px auto;
+        padding: 15px;
+        border: 1px solid #ccc;
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+
+    <div class="login-form">
+        <form class="form-horizontal" id="loginForm">
+            <p style="border-bottom:1px dashed #ccc;font-size:24px;">登陆</p>
+              <div class="form-group">
+                <label for="Email" class="col-sm-2 control-label">邮箱</label>
+                <div class="col-sm-10">
+                  <input type="email" class="form-control" id="Email">
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="Password" class="col-sm-2 control-label">密码</label>
+                <div class="col-sm-10">
+                  <input type="password" class="form-control" id="Password">
+                </div>
+              </div>
+              <div class="form-group">
+                <div class="col-sm-offset-2 col-sm-10">
+                  <div class="checkbox">
+                    <label>
+                      <input type="checkbox" id="remember_me"> 记住我
+                    </label>
+                  </div>
+                </div>
+              </div>
+              <div class="form-group">
+                <div class="col-sm-offset-2 col-sm-10">
+                  <button type="submit" class="btn btn-primary">登陆</button>
+                </div>
+              </div>
+        </form>
+    </div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+    $(function(){
+
+        $("#loginForm").submit(function(e){
+            e.preventDefault();
+
+            var email = $("#Email").val().trim();
+            var password = $("#Password").val().trim();
+            var remember_me = $("#remember_me").prop("checked");
+
+            if(!email || !password){
+                $.message({
+                    message:'请填写邮箱和密码',
+                    type:'warning'
+                });
+                return false;
+            }
+
+            var sendData = {
+                email: email,
+                password: password,
+                remember_me: remember_me
+            };
+            sendToServer.post('/login', sendData, function(resData){
+                if(resData.Success){
+                    //console.warn(JSON.stringify(resData.data));
+                    $.message({
+                        message:'登陆成功',
+                        type:'success'
+                    });
+                    setTimeout(function(){
+                        window.location.href = '/';
+                    }, 2000);
+                }else{
+                    //console.warn(resData.Message);
+                    $.message({
+                        message: resData.Message,
+                        type:'error'
+                    });
+                }
+            });
+
+        });
+
+
+    });
+</script>
+
+{% endblock %}
